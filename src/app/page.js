@@ -1,101 +1,176 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+
+const Home = () => {
+    const [date, setDate] = useState("");
+    const [slots, setSlots] = useState([]);
+    const [selectedSlot, setSelectedSlot] = useState("");
+    const [guests, setGuests] = useState("")
+    const [name, setName] = useState("");
+    const [contact, setContact] = useState("");
+    const [bookings, setBookings] = useState([]);
+    const [message, setMessage] = useState("");
+  
+    useEffect(() => {
+        fetchBookings();
+    }, []);
+
+    const fetchBookings = async () => {
+        try {
+          const response = await axios.get('http://localhost:5000/api/bookings');
+          setBookings(response.data);
+        } catch (error) {
+          console.error('Error fetching bookings:', error);
+        }
+      };
+
+    const fetchAvailableSlots = async (selectedDate) => {
+      try {
+        const response = await axios.get(`http://localhost:5000/api/slots?date=${selectedDate}`);
+        setSlots(response.data);
+      } catch (error) {
+        console.error("Error fetching slots:", error);
+        setSlots([]);
+      }
+    };
+  
+    const handleBooking = async (e) => {
+      e.preventDefault();
+      setMessage("");
+  
+      try {
+        const response = await axios.post("http://localhost:5000/api/bookings", {
+          date,
+          time: selectedSlot,
+          guests,
+          name,
+          contact,
+        });
+        setMessage("Booking successful!");
+        setDate("");
+        setSlots([]);
+        setSelectedSlot("");
+        setGuests("");
+        setName("");
+        setContact("");
+
+        fetchBookings();
+      } catch (error) {
+        setMessage(error.response?.data?.message || "Error creating booking.");
+      }
+    };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
+      <h1 className="text-3xl font-semibold text-center text-white">Restaurant Table Booking</h1>
+      <form onSubmit={handleBooking} style={{ marginBottom: '20px' }}>
+        <div className="flex flex-col gap-4 max-w-sm mx-auto p-4">
+          <label htmlFor="date" className="text-lg font-semibold text-white">
+            Date:
+          </label>
+          <input id="date" type="date" value={date} required
+            onChange={(e) => {
+              setDate(e.target.value);
+              fetchAvailableSlots(e.target.value);
+            }}
+            className="w-full px-4 py-2 text-gray-700 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300 ease-in-out"
+          />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        {slots.length > 0 && (
+          <div className="mt-6">
+            <h2 className="text-xl font-bold text-white mb-4">Available Slots</h2>
+            <div className="flex flex-wrap gap-4">
+              {slots.map((slot) => (
+                <div
+                  key={slot.time}
+                  onClick={() => {
+                    if (slot.available > 0) {
+                      setSelectedSlot(slot.time);
+                    }
+                  }}
+                  className={`p-4 border rounded-lg shadow-md text-center cursor-pointer transition-transform transform hover:scale-105 
+                    ${selectedSlot === slot.time ? "bg-blue-500 text-white" : (slot.available > 0 ? "bg-white border-gray-300 text-gray-800" : "bg-red-400 cursor-not-allowed")}`}
+                >
+                  <p className="text-sm font-medium">{slot.time}</p>
+                  <p className="text-xs">
+                    {slot.available > 0 ? `${slot.available} Available` : "Not Available"}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {selectedSlot && (
+          <>
+            <div>
+              <label className="mt-3 block text-sm font-medium text-white">Guests Number:</label>
+              <input type="number" value={guests} required
+  
+                onChange={(e) => setGuests(e.target.value)}
+               
+                className="mt-1 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-white">Name:</label>
+              <input type="text" value={name} required
+               
+                onChange={(e) => setName(e.target.value)}
+                
+                className="mt-1 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-white">Contact:</label>
+              <input type="text" value={contact} required
+                
+               
+                onChange={(e) => setContact(e.target.value)}
+               
+                className="mt-1 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <button
+              type="submit"
+              className="mt-4 w-full bg-blue-500 text-white py-2 rounded-md shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              Book Now
+            </button>
+          </>
+        )}
+      </form>
+      <div className="relative">
+        {/* Message Box */}
+        {message && (
+          <div className="absolute top-0 left-1/2 transform -translate-x-1/2 bg-blue-100 text-blue-700 py-2 px-6 rounded-full shadow-lg mb-4">
+            {message}
+          </div>
+        )}
+
+          <div className="bg-white bg-opacity-50 backdrop-blur-lg p-6 rounded-lg shadow-lg space-y-4">
+            <h2 className="text-2xl font-semibold text-center text-gray-800">Bookings</h2>
+            <ul className="space-y-4">
+              {bookings.map((booking) => (
+                <li
+                  key={booking.id}
+                  className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
+                >
+                  <div className="flex justify-between items-center">
+                    <span className="text-lg font-medium text-gray-800">{booking.date} at {booking.time}</span>
+                    <span className="text-sm text-gray-600">{booking.guests} guests</span>
+                  </div>
+                  <p className="mt-2 text-gray-700">{booking.name}</p>
+                </li>
+              ))}
+            </ul>
+        </div>
     </div>
+  </div>
   );
-}
+};
+
+export default Home;
