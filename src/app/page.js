@@ -19,16 +19,24 @@ const Home = () => {
 
     const fetchBookings = async () => {
         try {
-          const response = await axios.get('http://localhost:5000/api/bookings');
+          const response = await axios.get('https://booking-server-xz6c.onrender.com/api/bookings');
           setBookings(response.data);
         } catch (error) {
           console.error('Error fetching bookings:', error);
         }
       };
+    
+    const deleteBooking = async (id) => {
+      try{
+        const response = await axios.delete(`https://booking-server-xz6c.onrender.com/api/bookings/${id}`);
+      }catch (error) {
+        console.error('Error deleting the booking:',error);
+      }
+    }
 
     const fetchAvailableSlots = async (selectedDate) => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/slots?date=${selectedDate}`);
+        const response = await axios.get(`https://booking-server-xz6c.onrender.com/api/slots?date=${selectedDate}`);
         setSlots(response.data);
       } catch (error) {
         console.error("Error fetching slots:", error);
@@ -41,7 +49,7 @@ const Home = () => {
       setMessage("");
   
       try {
-        const response = await axios.post("http://localhost:5000/api/bookings", {
+        const response = await axios.post("https://booking-server-xz6c.onrender.com/api/bookings", {
           date,
           time: selectedSlot,
           guests,
@@ -162,7 +170,13 @@ const Home = () => {
                   <div className="flex justify-between items-center">
                     <span className="text-lg font-medium text-gray-800">{booking.date} at {booking.time}</span>
                     <span className="text-sm text-gray-600">{booking.guests} guests</span>
+                    <span>{booking.id}</span>
                   </div>
+                  <button 
+                  onClick = {() => {
+                      deleteBooking(booking.id)
+                  }}
+                  >Delete</button>
                   <p className="mt-2 text-gray-700">{booking.name}</p>
                 </li>
               ))}

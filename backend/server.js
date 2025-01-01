@@ -95,8 +95,8 @@ app.post('/api/bookings', (req, res) => {
     return res.status(400).json({ message: 'All fields are required.' });
   }
 
-  const dayOfWeek = getDayOfWeek(date);
-  const slots = weeklySlots[dayOfWeek];
+  const day = getDayOfWeek(date);
+  const slots = weeklySlots[day];
 
   if (!slots) {
     return res.status(400).json({ message: "No slots available for this day." });
@@ -109,7 +109,7 @@ app.post('/api/bookings', (req, res) => {
 
   slot.available -= 1;
 
-  const newBooking = { id: bookings.length + 1, date, time, guests, name, contact };
+  const newBooking = { id: bookings.length + 1, date, day, time, guests, name, contact };
   bookings.push(newBooking);
   res.status(201).json(newBooking);
 });
@@ -126,6 +126,15 @@ app.delete('/api/bookings/:id', (req, res) => {
 
   if (index === -1) {
     return res.status(404).json({ message: 'Booking not found.' });
+  }
+
+  const { day, time } = bookings[index];
+
+  if (weeklySlots[day]) {
+    const slot = weeklySlots[day].find((s) => s.time === time);
+    if (slot) {
+      slot.available += 1;
+    }
   }
 
   bookings.splice(index, 1);
