@@ -131,6 +131,3 @@ app.delete('/api/bookings/:id', (req, res) => {
   bookings.splice(index, 1);
   res.status(200).json({ message: 'Booking deleted successfully.' });
 });
-
-const PORT = 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
