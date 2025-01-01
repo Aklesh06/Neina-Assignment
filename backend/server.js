@@ -133,4 +133,4 @@ app.delete('/api/bookings/:id', (req, res) => {
 });
 
 const port = process.env.PORT;
-app.listen(port, () => console.log(`Server running on port ${PORT}`));
+app.listen(port, () => console.log(`Server running on port ${port}`));
