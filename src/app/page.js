@@ -29,6 +29,7 @@ const Home = () => {
     const deleteBooking = async (id) => {
       try{
         const response = await axios.delete(`https://booking-server-xz6c.onrender.com/api/bookings/${id}`);
+        fetchBookings();
       }catch (error) {
         console.error('Error deleting the booking:',error);
       }
@@ -161,26 +162,40 @@ const Home = () => {
 
           <div className="bg-white bg-opacity-50 backdrop-blur-lg p-6 rounded-lg shadow-lg space-y-4">
             <h2 className="text-2xl font-semibold text-center text-gray-800">Bookings</h2>
-            <ul className="space-y-4">
-              {bookings.map((booking) => (
-                <li
-                  key={booking.id}
-                  className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
-                >
-                  <div className="flex justify-between items-center">
-                    <span className="text-lg font-medium text-gray-800">{booking.date} at {booking.time}</span>
-                    <span className="text-sm text-gray-600">{booking.guests} guests</span>
-                    <span>{booking.id}</span>
-                  </div>
-                  <button 
-                  onClick = {() => {
-                      deleteBooking(booking.id)
-                  }}
-                  >Delete</button>
-                  <p className="mt-2 text-gray-700">{booking.name}</p>
-                </li>
-              ))}
-            </ul>
+            {bookings.length === 0 ? (
+              <div className="flex justify-center items-center">
+                <span className="text-lg font-medium text-gray-800">
+                  No bookings available.
+                </span>
+              </div>
+              ) : (
+                <ul>
+                  {bookings.map((booking) => (
+                    <li
+                      key={booking.id}
+                      className="mt-2 bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
+                    >
+                      <div className="flex justify-between items-center">
+                        <span className="text-lg font-medium text-gray-800">
+                          {booking.date} at {booking.time}
+                        </span>
+                        <span className="text-sm text-gray-600">{booking.guests} guests</span>
+                      </div>
+                      <div className="flex justify-between items-center mt-2">
+                        <p className="text-gray-700">{booking.name}</p>
+                        <button
+                          onClick={() => {
+                            deleteBooking(booking.id);
+                          }}
+                          className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300 transition-all"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
         </div>
     </div>
   </div>
