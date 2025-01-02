@@ -5,6 +5,7 @@ import axios from 'axios';
 
 const Home = () => {
     const [date, setDate] = useState("");
+    const today = new Date().toISOString().split('T')[0];
     const [slots, setSlots] = useState([]);
     const [selectedSlot, setSelectedSlot] = useState("");
     const [guests, setGuests] = useState("")
@@ -79,7 +80,7 @@ const Home = () => {
           <label htmlFor="date" className="text-lg font-semibold text-white">
             Date:
           </label>
-          <input id="date" type="date" value={date} required
+          <input id="date" type="date" value={date} required min={today}
             onChange={(e) => {
               setDate(e.target.value);
               fetchAvailableSlots(e.target.value);
@@ -153,7 +154,6 @@ const Home = () => {
         )}
       </form>
       <div className="relative">
-        {/* Message Box */}
         {message && (
           <div className="absolute top-0 left-1/2 transform -translate-x-1/2 bg-blue-100 text-blue-700 py-2 px-6 rounded-full shadow-lg mb-4">
             {message}
